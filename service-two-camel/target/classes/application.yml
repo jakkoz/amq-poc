@@ -1,0 +1,13 @@
+spring:
+  application:
+    name: service-two-camel
+  activemq:
+    broker-url: tcp://localhost:61616
+    user: admin
+    password: admin
+server:
+  port: 8082
+
+camel:
+  springboot:
+    main-run-controller: true

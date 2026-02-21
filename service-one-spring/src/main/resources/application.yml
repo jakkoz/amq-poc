@@ -1,0 +1,12 @@
+spring:
+  application:
+    name: service-one-spring
+  activemq:
+    broker-url: tcp://localhost:61616
+    user: admin
+    password: admin
+  jms:
+    template:
+      receive-timeout: 5000
+server:
+  port: 8081
