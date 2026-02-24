@@ -1,8 +1,8 @@
 # amq-check
 
-Przykladowy projekt z dwoma serwisami:
-- `service-one-spring` (Spring Boot + `JmsTemplate` + embedded ActiveMQ broker 5.18.3)
-- `service-two-camel` (Camel, odbior z `one.request`, opoznienie, odpowiedz na `one.response`)
+Przykladowy projekt z trzema serwisami:
+- `service-one-spring` (Spring Boot + `JmsTemplate` + embedded ActiveMQ broker, request-reply przez `TemporaryQueue`)
+- `service-two-camel` (Camel, odbior z `one.request`, opoznienie, odpowiedz na `JMSReplyTo`)
 - `service-three-flooder` (Spring Boot CLI, zasypuje `one.response` wiadomosciami z losowym `JMSCorrelationID`)
 
 ## Wymagania
@@ -40,10 +40,11 @@ processed by camel: test-123
 ```
 
 ## Szczegoly implementacji
-- Kolejki: `one.request`, `one.response`
+- Request queue: `one.request`
+- Reply queue: `TemporaryQueue` tworzona per request (ustawiana w `JMSReplyTo`)
 - Request jest wysylany i obslugiwany synchronicznie przez dedykowany watek (`request-sender-thread`)
-- Response jest odbierany przez `JmsTemplate.receiveSelected(...)` z selektorem `JMSCorrelationID = '...'`
+- Response jest odbierany synchronicznie z `TemporaryQueue` (bez selectorow na shared reply queue)
 - `service-one-spring` uzywa `activemq-jms-pool` z `maxConnections=1`
-- Route Camel wysyla odpowiedz jako `InOnly` i usuwa `JMSReplyTo`, aby nie uruchamiac request-reply po stronie Camel
+- Route Camel odsyla odpowiedz natywnie na `JMSReplyTo`
 - `service-three-flooder` wysyla domyslnie `7000` wiadomosci (`flooder.messages`) z losowym `JMSCorrelationID` na `one.response`
 - Broker uruchamia sie w `service-one-spring` jako embedded broker na `tcp://localhost:61616`

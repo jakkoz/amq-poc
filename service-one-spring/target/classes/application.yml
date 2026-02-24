@@ -10,3 +10,7 @@ spring:
       receive-timeout: 5000
 server:
   port: 8081
+
+app:
+  jms:
+    mode: selector
